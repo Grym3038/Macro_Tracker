@@ -11,7 +11,6 @@
     "./index.php",               // ✅ root index.php
     "./src/**/*.{html,js}",       // ✅ if you have test HTML or JS files in src
     "./node_modules/flowbite/**/*.js",
-    "./node_modules/flowbite-datepicker/**/*.js"
    ],
    theme: {
      extend: {
@@ -24,8 +23,7 @@
    },
    plugins: [
      forms,
-     flowbite,
-     flowbiteDatepicker
+     flowbite
    ],
  }
  
