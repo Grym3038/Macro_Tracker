@@ -234,6 +234,32 @@ if(document.getElementById("column-chart") && typeof ApexCharts !== 'undefined')
 
 </script>
 
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js" type="text/javascript"></script>
+
+<script>
+
+$('#target').submit(function(event) {
+
+	event.preventDefault();
+	
+	$.ajax({
+		type: 'POST',
+		url: 'http://localhost:8000/CIS266/RESTful/MurachDB_Sample4/ServiceProvider/MDB_Tables_API.php',
+		data: 'NA', 
+		dataType: 'json',
+		encode: true
+	})
+	.done(function(data) {
+		$('#aMessage').text(data.tablesList);
+	})
+	.fail(function() {
+		$('#aMessage').text('An error occurred. Please try again.');
+	});
+
+	});
+
+</script>
+
 </div>
 
 
