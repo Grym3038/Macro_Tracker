@@ -1,16 +1,7 @@
 <?php
 
-require 'Models/dbAccess.php';
-$db = new dbAccess();
-function filter_string_polyfill(string $string): string
-{
-    $str = preg_replace('/\x00|<[^>]*>?/', '', $string);
-    return str_replace(["'", '"'], ['&#39;', '&#34;'], $str);
-}
 
 
-// determine which action to take
-$action = filter_string_polyfill(isset($_GET['action']) ? (string)$_GET['action'] : '');
 
 switch ($action) {
 
@@ -65,7 +56,7 @@ switch ($action) {
         // destroy everything:
         session_unset();
         session_destroy();
-        header('Location: .?action=listArtists');
+        header('Location: .?action=home');
         exit();
         
 
@@ -97,66 +88,23 @@ switch ($action) {
         exit();
 
     case 'viewUser':
+        $loggedIn = !empty($_SESSION['UserId']);
+
         // show user + profile
         $userId = filter_input(INPUT_GET,'user_id', FILTER_VALIDATE_INT)
                 ?? $_SESSION['UserId'];
+
         $user    = $db->getUserById($userId);
         $profile = $db->getProfileByUserId($userId);
-        include 'views/User/ViewUser.php';
-        exit();
-
-
-    /* -------------------------------------------------------------
-     |  FOOD ITEMS (cached from external API)
-     ------------------------------------------------------------- */
-    case 'listFoodItems':
-        $items = $db->displayRecords('food_items');
-        include 'views/FoodItem/List.php';
-        exit();
-
-    case 'addFoodItemForm':
-        include 'views/FoodItem/AddForm.php';
-        exit();
-
-    case 'addFoodItem':
-        $external = filter_input(INPUT_POST,'external_food_id', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-        $db->createFoodItem($external);
-        header("Location: .?action=listFoodItems");
-        exit();
-
-
-    /* -------------------------------------------------------------
-     |  FOOD LOGS
-     ------------------------------------------------------------- */
-    case 'listFoodLogs':
-        // optionally filter by user_id (or show all)
-        $userId = filter_input(INPUT_GET,'user_id', FILTER_VALIDATE_INT);
-        if ($userId) {
-            $logs = $db->getFoodLogsByUser($userId);
+        if($loggedIn == $userId) {
+            include 'views/User/ViewUser.php';
         } else {
-            $logs = $db->displayRecords('food_logs');
+            header("Location: .?action=home");
         }
-        include 'views/FoodLog/List.php';
-        exit();
-
-    case 'addFoodLogForm':
-        include 'views/FoodLog/AddForm.php';
-        exit();
-
-    case 'addFoodLog':
-        $data = [
-            'user_id'      => filter_input(INPUT_POST,'user_id', FILTER_VALIDATE_INT),
-            'food_item_id' => filter_input(INPUT_POST,'food_item_id', FILTER_VALIDATE_INT),
-            'quantity'     => floatval($_POST['quantity']),
-            'unit'         => filter_input(INPUT_POST,'unit', FILTER_SANITIZE_FULL_SPECIAL_CHARS),
-            'eaten_at'     => $_POST['eaten_at'],
-        ];
-        $db->createFoodLog($data);
-        header("Location: .?action=listFoodLogs&user_id={$data['user_id']}");
         exit();
 
 
-    default:
-        echo "Unknown action: {$action}";
-        exit();
+
+
+
 }

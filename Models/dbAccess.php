@@ -5,10 +5,10 @@ class dbAccess
     /** The static class wide mysqli connection information 
 	for sharing between functions */
     private static $conn;
-	private static $hostName = "localhost";
-	private static $databaseName = "macro_Tracker";
-	private static $userName = "root";
-	private static $password = "";
+	private static $hostName = "195.35.61.14";
+	private static $databaseName = "u965274750_macro_Tracker";
+	private static $userName = "u965274750_Root";
+	private static $password = "QaLB/31|";
 
 
 

@@ -12,9 +12,5 @@ switch ($action)
     case 'home':
         include('Views/IndexView.php');
         exit();
-    case 'track':
-        include('Views/Tracker.php');
-        exit();
-    case 'list':
-        include('Views/Foods.php');
-        exit();}
+    
+    }

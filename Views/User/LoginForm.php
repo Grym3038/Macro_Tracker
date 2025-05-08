@@ -2,15 +2,8 @@
 // Views/User/LoginForm.php
 // Front-controller will set $error if invalid
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Log In</title>
-</head>
-<body>
-  <?php include __DIR__ . '/../partials/navbar.php'; ?>
 
+<?php include('Views/_partials/header.php'); ?>
   <h2>Log In</h2>
   <?php if (!empty($error)): ?>
     <p style="color:red;"><?= htmlspecialchars($error) ?></p>
@@ -36,5 +29,5 @@
 
     <button type="submit">Log In</button>
   </form>
-</body>
-</html>
+
+  <?php include('Views/_partials/footer.php'); ?>

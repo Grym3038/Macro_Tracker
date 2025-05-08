@@ -5,7 +5,14 @@
  *          models and controllers
  */
 
-// Import the data models
+// Import  models
+
+require 'Models/dbAccess.php';
+require 'Models/FoodApiAccess.php';
+
+$db  = new dbAccess();
+$api = new FoodApiAccess();
+
 
 
 // Define a 404 Not Found function
@@ -23,20 +30,19 @@ session_set_cookie_params($lifetime, '/');
 session_start();
 
 
+function filter_string_polyfill(string $string): string
+{
+    $str = preg_replace('/\x00|<[^>]*>?/', '', $string);
+    return str_replace(["'", '"'], ['&#39;', '&#34;'], $str);
+}
 
 // Get the action
-$action = filter_input(INPUT_POST, 'action');
-if ($action == NULL)
-{
-    $action = filter_input(INPUT_GET, 'action');
-    if ($action == NULL)
-    {
-        $action = 'home';
-    }
-}
+$action = filter_string_polyfill(isset($_GET['action']) ? (string)$_GET['action'] : 'home');
+
 
 // Register the controllers
 require('Controllers/HomeController.php');
 require('Controllers/UserController.php');
+require('Controllers/FoodController.php');
 
 return404();

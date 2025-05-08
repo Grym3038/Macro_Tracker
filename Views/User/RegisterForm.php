@@ -2,13 +2,7 @@
 // views/User/RegisterForm.php
 // Controller should set: $error (string|null)
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Register New Account</title>
-</head>
-<body>
+<?php include('Views/_partials/header.php'); ?>
   <h2>Register New Account</h2>
 
   <?php if (!empty($error)): ?>
@@ -48,5 +42,4 @@
 
     <button type="submit">Register</button>
   </form>
-</body>
-</html>
+  <?php include('Views/_partials/footer.php'); ?>

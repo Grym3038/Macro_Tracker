@@ -2,13 +2,7 @@
 // views/User/ProfileForm.php
 // Controller should set: $userId (int), $message (string|null)
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Complete Your Profile</title>
-</head>
-<body>
+<?php include('Views/_partials/header.php'); ?>
   <h2>Finish Your Profile</h2>
 
   <?php if (!empty($message)): ?>
@@ -96,5 +90,4 @@
 
     <button type="submit">Save Profile</button>
   </form>
-</body>
-</html>
+  <?php include('Views/_partials/footer.php'); ?>
