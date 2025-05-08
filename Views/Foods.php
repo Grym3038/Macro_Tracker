@@ -1,3 +1,6 @@
+<?php include('Views/_partials/header.php'); ?>
+
+
 <?php
 // Views/Foods.php
 
@@ -32,33 +35,36 @@ try {
     $error = $e->getMessage();
 }
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Food Catalog</title>
-    <style>
-        body { font-family: sans-serif; max-width: 800px; margin: 2rem auto; }
-        form { margin-bottom: 1.5rem; }
-        ul { list-style: none; padding: 0; }
-        li { padding: .5rem 0; border-bottom: 1px solid #eee; }
-        .pagination a { margin: 0 .5rem; text-decoration: none; font-size: 1.2rem; }
-    </style>
-</head>
-<body>
-    <h1>Food Catalog</h1>
-
-    <!-- Search form -->
-    <form method="get" action="<?= htmlspecialchars($_SERVER['PHP_SELF']) ?>">
-        <input
-            type="text"
-            name="query"
-            placeholder="Search foods…"
-            value="<?= htmlspecialchars($query) ?>"
-        >
-        <button type="submit">🔍</button>
+<div class="w-full gap-16 items-center py-8 px-4 mx-auto">
+    <form  method="get" action="<?= htmlspecialchars($_SERVER['PHP_SELF']) ?>" class=" max-w-md mx-auto">   
+        <label for="default-search" class="mb-2 text-sm font-medium text-gray-900 sr-only ">Search</label>
+        <div class="relative">
+            <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+                <svg class="w-4 h-4 text-gray-500 " aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
+                </svg>
+            </div>
+            <input  
+                type="text"
+                name="query"
+                placeholder="Search foods…"
+                value="<?= htmlspecialchars($query) ?>"
+                id="default-search" 
+                class=  "block w-full p-4 ps-10 text-sm text-gray-900 border border-gray-300 
+                        rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500"
+                        required />
+            <button 
+                type="submit" 
+                class="text-white absolute end-2.5 bottom-2.5 bg-blue-700 hover:bg-blue-800 focus:ring-4 
+                    focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2">Search</button>
+        </div>
     </form>
 
+
+
+
+
+    <div class="w-90 grid grid-cols-8">
     <!-- Error message -->
     <?php if ($error): ?>
         <p style="color: crimson;"><?= htmlspecialchars($error) ?></p>
@@ -70,6 +76,21 @@ try {
         <li><em>No items found.</em></li>
     <?php else: ?>
         <?php foreach ($foods as $food): ?>
+            <div class="card w-96 bg-base-100 card-xs shadow-sm">
+                <div class="card-body">
+                    <h2 class="card-title"><?= htmlspecialchars($food['description'] ?? 'No description') ?></h2>
+                    <?php foreach ($food['foodNutrients'] as $Nutrient): ?>
+                        <p><?= htmlspecialchars($Nutrient['name'] . ':' . $Nutrient['amount'] . ' ' . $Nutrient['amount'] ) ?></p>
+                    <?php endforeach; ?>
+                    
+                    <div class="justify-end card-actions">
+                    <button class="btn btn-primary">Add</button>
+                    </div>
+                </div>
+            </div>
+
+
+
             <li>
                 <strong><?= htmlspecialchars($food['description'] ?? 'No description') ?></strong>
                 (FDC ID: <?= htmlspecialchars($food['fdcId'] ?? '') ?>)
@@ -78,18 +99,28 @@ try {
     <?php endif; ?>
     </ul>
 
+
+    </div>
+
+
+  
+
     <!-- Pagination controls -->
-    <div class="pagination">
+    <div class="pagination max-w-md mx-auto">
+    <div class="join">
+
         <?php
         // Prev arrow (only if we're past page 1)
         if ($currentPage > 1):
             $prevParams = ['page' => $currentPage - 1];
             if ($query !== '') { $prevParams['query'] = $query; }
         ?>
-            <a href="?<?= http_build_query($prevParams) ?>">&laquo; Prev</a>
+            <a href="?action=list& <?= http_build_query($prevParams) ?>" class="join-item btn">«</a>
         <?php endif; ?>
+        <button class="join-item btn"><?php echo $currentPage?></button>
 
         <?php
+
         // Next arrow (if totalPages is known, don’t exceed it;
         // otherwise always show it to let user keep paging list)
         $showNext = $totalPages === null
@@ -99,9 +130,13 @@ try {
         if ($showNext):
             $nextParams = ['page' => $currentPage + 1];
             if ($query !== '') { $nextParams['query'] = $query; }
-        ?>
-            <a href="?<?= http_build_query($nextParams) ?>">Next &raquo;</a>
+        ?>        
+            <a href="?action=list&<?= http_build_query($nextParams) ?>" class="join-item btn">»</a>
         <?php endif; ?>
+        </div>
+
     </div>
-</body>
-</html>
+
+
+    </div>
+    <?php include('Views/_partials/footer.php'); ?>

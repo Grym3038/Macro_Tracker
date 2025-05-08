@@ -1,5 +1,6 @@
 <?php
-require 'dbAccess.php';
+require __DIR__ .  '/../Models/dbAccess.php';
+
 $db = new dbAccess();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {

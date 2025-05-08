@@ -1,5 +1,5 @@
 <?php
-require 'dbAccess.php';
+require __DIR__ .  '/../Models/dbAccess.php';
 $db = new dbAccess();
 $message = '';
 
