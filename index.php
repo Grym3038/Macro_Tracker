@@ -1,14 +1,16 @@
-<?php
++<?php
 /**
  * Title: Index Controller
  * Purpose: To serve as the entry point of the application that imports all
  *          models and controllers
  */
-
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 // Import  models
 
 require 'Models/dbAccess.php';
-require 'Models/FoodApiAccess.php';
+require 'Models/foodApiAccess.php';
 
 $db  = new dbAccess();
 $api = new FoodApiAccess();
@@ -16,13 +18,13 @@ $api = new FoodApiAccess();
 
 
 // Define a 404 Not Found function
-function return404()
-{
-    $title = '404 Not Found';
-    $body = 'That page does not exist.';
-    include('views/error.php');
-    exit();
-}
+// function return404()
+// {
+//     $title = '404 Not Found';
+//     $body = 'That page does not exist.';
+//     include('views/error.php');
+//     exit();
+// }
 
 // Start the session
 $lifetime = 60 * 60 * 24 * 365; // 1 year in seconds
@@ -45,4 +47,4 @@ require('Controllers/HomeController.php');
 require('Controllers/UserController.php');
 require('Controllers/FoodController.php');
 
-return404();
+// return404();

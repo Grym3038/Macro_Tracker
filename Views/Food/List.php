@@ -5,8 +5,6 @@
 // Views/Foods.php
 
 // 1) Autoload your API client
-require __DIR__ . '/../Models/foodApiAccess.php';
-
 // 2) Init variables
 $error      = '';
 $page       = isset($_GET['page']) && is_numeric($_GET['page']) ? (int) $_GET['page'] : 1;
@@ -69,10 +67,10 @@ try {
         <p style="color: crimson;"><?= htmlspecialchars($error) ?></p>
     <?php endif; ?>
 
-     <!-- Food list -->
-     <div class=" grid grid-cols-8 gap-4">
+    <!-- Food list -->
+    <div class=" grid grid-cols-8 gap-4">
     <?php if (empty($foods)): ?>
-        <div class="card w-96 bg-base-100 card-xs shadow-sm">
+        <div class="card min-w-50 w-96 bg-base-100 card-xs shadow-sm">
                 <div class="card-body">
                     <h2 class="card-title text-white">No Food :(</h2>
                     <div class="justify-end card-actions">
@@ -103,6 +101,7 @@ try {
 
 
 
+
   
 
     <!-- Pagination controls -->
@@ -115,7 +114,7 @@ try {
             $prevParams = ['page' => $currentPage - 1];
             if ($query !== '') { $prevParams['query'] = $query; }
         ?>
-            <a href="?action=list& <?= http_build_query($prevParams) ?>" class="join-item btn">«</a>
+            <a href="?action=listFoodAPI& <?= http_build_query($prevParams) ?>" class="join-item btn">«</a>
         <?php endif; ?>
         <button class="join-item btn"><?php echo $currentPage?></button>
 
@@ -131,7 +130,7 @@ try {
             $nextParams = ['page' => $currentPage + 1];
             if ($query !== '') { $nextParams['query'] = $query; }
         ?>        
-            <a href="?action=list&<?= http_build_query($nextParams) ?>" class="join-item btn">»</a>
+            <a href="?action=listFoodAPI&<?= http_build_query($nextParams) ?>" class="join-item btn">»</a>
         <?php endif; ?>
         </div>
 

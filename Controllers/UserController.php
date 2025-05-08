@@ -67,7 +67,7 @@ switch ($action) {
         if (!$userId) {
             die('Invalid user_id');
         }
-        include 'views/User/ProfileForm.php';
+        include 'Views/User/ProfileForm.php';
         exit();
 
     case 'SaveProfile':
@@ -97,7 +97,7 @@ switch ($action) {
         $user    = $db->getUserById($userId);
         $profile = $db->getProfileByUserId($userId);
         if($loggedIn == $userId) {
-            include 'views/User/ViewUser.php';
+            include 'Views/User/ViewUser.php';
         } else {
             header("Location: .?action=home");
         }

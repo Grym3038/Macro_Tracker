@@ -70,7 +70,7 @@ class FoodApiAccess
             'sortBy'     => $sortBy,
             'sortOrder'  => $sortOrder,
             'format'       => 'abridged',
-            'nutrients'    => [208],
+            'nutrients'    => [208]
         ];
     
         return $this->request($endpoint, 'POST', $body);
