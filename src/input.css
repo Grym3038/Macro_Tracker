@@ -9,3 +9,5 @@
 
 
 @plugin "daisyui";
+
+@custom-variant dark (&:where(.dark, .dark *));

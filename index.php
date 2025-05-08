@@ -37,5 +37,6 @@ if ($action == NULL)
 
 // Register the controllers
 require('Controllers/HomeController.php');
+require('Controllers/UserController.php');
 
 return404();

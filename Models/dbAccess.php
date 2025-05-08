@@ -10,6 +10,9 @@ class dbAccess
 	private static $userName = "root";
 	private static $password = "";
 
+
+
+
     private function connect()
     {
         self::$conn = new mysqli(
@@ -45,6 +48,22 @@ class dbAccess
         $stmt->close();
         $this->close();
         return $newId;
+    }
+
+    public function getUserByUsername(string $username): ?array
+    {
+    $this->connect();
+    $stmt = self::$conn->prepare(
+        "SELECT id, username, email, password_hash
+         FROM users
+         WHERE username = ?"
+    );
+    $stmt->bind_param("s", $username);
+    $stmt->execute();
+    $result = $stmt->get_result()->fetch_assoc() ?: null;
+    $stmt->close();
+    $this->close();
+    return $result;
     }
 
     public function getUserById(int $id): ?array

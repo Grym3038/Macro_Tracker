@@ -30,10 +30,6 @@ $conn->close();
 
 
 
-
-
-
-
 <?php include('Views/_partials/header.php'); ?>
 
 <div>
