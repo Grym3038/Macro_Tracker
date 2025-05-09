@@ -20,9 +20,14 @@ class dbAccess
              self::$password,
              self::$databaseName
         );
+        
         if ( self::$conn->connect_error) {
             throw new Exception("Connection failed: " .  self::$conn->connect_error);
         }
+        self::$conn->query(
+            "SET time_zone = '" . date('P') . "'"
+        );
+        
     }
 	
     private static function close()
@@ -195,60 +200,6 @@ class dbAccess
         return $ok;
     }
 
-    /* ------------------------ FOOD_ITEMS ------------------------ */
-
-    public static function createFoodItem(string $externalFoodId): int
-    {
-         self::connect();
-        $stmt =  self::$conn->prepare("
-            INSERT INTO food_items (external_food_id)
-            VALUES (?)
-        ");
-        $stmt->bind_param("s", $externalFoodId);
-        $stmt->execute();
-        $newId = $stmt->insert_id;
-        $stmt->close();
-         self::close();
-        return $newId;
-    }
-
-    public static function getFoodItemById(int $id): ?array
-    {
-         self::connect();
-        $stmt =  self::$conn->prepare("SELECT * FROM food_items WHERE id = ?");
-        $stmt->bind_param("i", $id);
-        $stmt->execute();
-        $res = $stmt->get_result()->fetch_assoc();
-        $stmt->close();
-         self::close();
-        return $res ?: null;
-    }
-
-    public static function updateFoodItem(int $id, string $externalFoodId): bool
-    {
-         self::connect();
-        $stmt =  self::$conn->prepare("
-            UPDATE food_items
-            SET external_food_id = ?
-            WHERE id = ?
-        ");
-        $stmt->bind_param("si", $externalFoodId, $id);
-        $ok = $stmt->execute();
-        $stmt->close();
-         self::close();
-        return $ok;
-    }
-
-    public static function deleteFoodItem(int $id): bool
-    {
-         self::connect();
-        $stmt =  self::$conn->prepare("DELETE FROM food_items WHERE id = ?");
-        $stmt->bind_param("i", $id);
-        $ok = $stmt->execute();
-        $stmt->close();
-         self::close();
-        return $ok;
-    }
 
     /* ------------------------ FOOD_LOGS ------------------------ */
 
@@ -257,15 +208,14 @@ class dbAccess
          self::connect();
         $stmt =  self::$conn->prepare("
             INSERT INTO food_logs
-            (user_id, food_item_id, quantity, unit, eaten_at)
-            VALUES (?, ?, ?, ?, ?)
+            (user_id, food_item_id, quantity, eaten_at)
+            VALUES (?, ?, ?, ?)
         ");
         $stmt->bind_param(
-            "iids s",
+            "iids",
             $data['user_id'],
             $data['food_item_id'],
             $data['quantity'],
-            $data['unit'],
             $data['eaten_at']
         );
         $stmt->execute();

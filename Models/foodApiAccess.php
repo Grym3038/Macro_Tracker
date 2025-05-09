@@ -36,13 +36,22 @@ class FoodApiAccess
         if ($response === false) {
             throw new \Exception('Curl error: ' . curl_error($ch));
         }
+          error_log("URL: {$url}");
+            error_log("Raw response (first 200 chars): " . substr($response, 0, 200));
+
 
         $status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
-
+        
+        
+        $trimmed = trim($response);
+        $data    = json_decode($trimmed, true);
         $decoded = json_decode($response, true);
         if (json_last_error() !== JSON_ERROR_NONE) {
-            throw new \Exception('JSON decode error: ' . json_last_error_msg());
+            throw new \Exception(
+                'JSON decode error: ' . json_last_error_msg() .
+                ' — response was: ' . substr($trimmed, 0, 200)
+            );
         }
 
         if ($status < 200 || $status >= 300) {
@@ -103,6 +112,10 @@ class FoodApiAccess
             array $fdcIds
         ): array
     {
+            if (empty($fdcIds)) {
+                return [];
+            }
+
         // build endpoint with your api_key
         $endpoint = '/foods?api_key=' . urlencode($this->apiKey);
 
@@ -120,13 +133,17 @@ class FoodApiAccess
         int $fdcId
         ): array
     {
+            if (empty($fdcId)) {
+            return [];
+        }
+
         $nutrientParams = implode('&', array_map(
             fn(int $n) => "nutrients={$n}",
             [208, 204, 303, 291, 203, 539, 606, 605, 601]
         ));
 
         // assemble endpoint with nutrients and API key
-        $endpoint = "/food/{$fdcId}?{$nutrientParams}api_key=" . urlencode($this->apiKey);
+        $endpoint = "/food/{$fdcId}?{$nutrientParams}&api_key=" . urlencode($this->apiKey);
 
         // fire the GET request
         return $this->request($endpoint, 'GET');

@@ -86,22 +86,93 @@ switch ($action) {
         $db->createProfile($data);
         header("Location: .?action=viewUser&user_id={$userId}");
         exit();
+        
+        
+case 'viewUser':
+    $loggedIn = ! empty($_SESSION['UserId']);
+    $userId   = filter_input(INPUT_GET, 'user_id', FILTER_VALIDATE_INT)
+              ?? $_SESSION['UserId'];
 
-    case 'viewUser':
-        $loggedIn = !empty($_SESSION['UserId']);
-
-        // show user + profile
-        $userId = filter_input(INPUT_GET,'user_id', FILTER_VALIDATE_INT)
-                ?? $_SESSION['UserId'];
-
-        $user    = $db->getUserById($userId);
-        $profile = $db->getProfileByUserId($userId);
-        if($loggedIn == $userId) {
-            include 'Views/User/ViewUser.php';
-        } else {
-            header("Location: .?action=home");
-        }
+    if ($loggedIn != $userId) {
+        header("Location: .?action=home");
         exit();
+    }
+
+    // fetch user, profile, and logs
+    $user        = $db->getUserById($userId);
+    $profile     = $db->getProfileByUserId($userId);
+    $userFoodLog = $db->getFoodLogsByUser($userId);
+    date_default_timezone_set('America/Chicago');
+
+    $todayDate = (new DateTime('now', new DateTimeZone('America/Chicago')))
+                    ->format('Y-m-d');
+   $logsToday = array_filter($userFoodLog, function(array $log) use ($todayDate) {
+    // treat eaten_at as local time
+    $dt = new DateTime($log['eaten_at']); 
+    // no need to convert
+    return $dt->format('Y-m-d') === $todayDate;
+    });
+    $logsToday = array_values($logsToday);
+    $ids = array_column($logsToday, 'food_item_id');
+
+    // ── NEW: preload all nutrient arrays by food_item_id ──
+    $nutrientsByFood = [];
+    if (empty($logsToday)) {
+        $userFood = [];
+    } else {
+        $userFood = $api->getFoods(array_column($logsToday, 'food_item_id'));
+
+        }
+    
+    
+    $allIds = array_unique(array_column($userFoodLog, 'food_item_id'));
+    foreach ($allIds as $fid) {
+        $info = $api->getFood($fid);
+        $nutrientsByFood[$fid] = $info['foodNutrients'] ?? [];
+    }
+
+    // set correct timezone for weekday names
+    date_default_timezone_set('America/Chicago');
+
+    // ── now group and accumulate ──
+    $dailyTotals = [];
+    foreach ($userFoodLog as $log) {
+        // parse timestamp in UTC and convert to Chicago time
+        $dt = new DateTime($log['eaten_at'], new DateTimeZone('UTC'));
+        $dt->setTimezone(new DateTimeZone('America/Chicago'));
+        $day = $dt->format('l'); 
+
+        if (! isset($dailyTotals[$day])) {
+            $dailyTotals[$day] = [];
+        }
+
+        $qty      = $log['quantity'];
+        $nutrList = $nutrientsByFood[$log['food_item_id']];
+
+        foreach ($nutrList as $nutr) {
+            $name   = $nutr['nutrient']['name'] ?? $nutr['name'];
+            $amt    = ($nutr['amount'] ?? $nutr['nutrient']['amount']) * $qty;
+            $dailyTotals[$day][$name] = 
+                ($dailyTotals[$day][$name] ?? 0)
+                + $amt;
+        }
+    }
+    
+    $logsWithFood = [];
+    foreach ($logsToday as $i => $log) {
+        $logsWithFood[] = [
+          'logID'       => $log['id'],
+          'quantity'    => $log['quantity'],
+          'eaten_at'    => $log['eaten_at'],
+          'food'        => $userFood[$i] ?? null,  
+        ];
+    }
+
+
+    include 'Views/User/ViewUser.php';
+    exit();
+
+
 
 
 

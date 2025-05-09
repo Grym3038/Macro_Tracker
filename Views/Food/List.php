@@ -1,6 +1,5 @@
 <?php include('Views/_partials/header.php'); ?>
 
-
 <?php
 // Views/Foods.php
 
@@ -19,6 +18,8 @@ try {
     if ($query !== '') {
         // search returns a wrapper with 'foods'
         $response = $client->searchFood($query, 25, $page);
+        
+        
         $foods       = $response['foods'] ?? [];
         $totalPages  = $response['totalPages']  ?? null;
         // USDA returns currentPage zero‑based; convert to 1‑based
@@ -33,8 +34,17 @@ try {
     $error = $e->getMessage();
 }
 ?>
+
+        <!--<?php foreach ($foods as $food): ?>-->
+                    <!--<h3 class="card-title text-blac"><?= htmlspecialchars($food['fdcId'] ?? 'No fdcId') ?></h3>-->
+
+        <!--<?php endforeach; ?>-->
+
+
 <div class="w-full gap-16 items-center py-8 px-4 mx-auto">
-    <form  method="get" action="<?= htmlspecialchars($_SERVER['PHP_SELF']) ?>" class=" max-w-md mx-auto">   
+    <form  method="get" action="?action=listFoodAPI" class=" max-w-md mx-auto">   
+      <input type="hidden" name="action" value="listFoodAPI">
+
         <label for="default-search" class="mb-2 text-sm font-medium text-gray-900 sr-only ">Search</label>
         <div class="relative">
             <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
@@ -78,19 +88,43 @@ try {
                 </div>
             </div>
     <?php else: ?>
+        
+    
         <?php foreach ($foods as $food): ?>
-            <div class="card w-50 bg-base-100 card-xs shadow-sm">
+            <div class="card w-60 bg-base-100 card-xs shadow-sm">
                 <div class="card-body">
                     <h2 class="card-title text-white"><?= htmlspecialchars($food['description'] ?? 'No description') ?></h2>
+                    <h3 class="card-title text-white"><?= htmlspecialchars($food['fdcId'] ?? 'No fdcId') ?></h3>
+
                     <?php foreach ($food['foodNutrients'] as $Nutrient): ?>
+                        <?php if ($query == ''): ?>
+
                         <?php if ($Nutrient['number'] == 208): ?>
                             <p class="text-white"><?= htmlspecialchars( 'Calories: ' . $Nutrient['amount'] . ' ' . $Nutrient['unitName'] ) ?></p>
+                        <?php endif; ?>
+                        <?php else: ?>
+                             <?php if ($Nutrient['nutrientNumber'] == 208): ?>
+                            <p class="text-white"><?= htmlspecialchars( 'Calories: ' . $Nutrient['value'] . ' ' . $Nutrient['unitName'] ) ?></p>
+                        <?php endif; ?>
                         <?php endif; ?>
 
                     <?php endforeach; ?>
                     
                     <div class="justify-end card-actions">
-                    <button class="btn btn-primary">Add</button>
+                    <form class="add-food-form" method="post">
+                      <input type="hidden" name="user_id"      value="<?= $_SESSION['UserId'] ?>">
+                      <input type="hidden" name="food_item_id" value="<?= $food['fdcId'] ?>">
+                      <label class="text-white" for="quantity">Choose quantity:</label>
+                      <input
+                        type="number"
+                        id="quantity"
+                        name="quantity"
+                        required
+                        placeholder="999"
+                        class="…"
+                      />
+                      <button type="submit" class="btn btn-primary">Add</button>
+                    </form>
                     </div>
                 </div>
             </div>
@@ -100,7 +134,18 @@ try {
     </div>
 
 
-
+<dialog id="my_modal_1" class="modal">
+  <div class="modal-box">
+    <h3 class="text-lg font-bold">Hello!</h3>
+    <p class="py-4">Press ESC key or click the button below to close</p>
+    <div class="modal-action">
+      <form method="dialog">
+        <!-- if there is a button in form, it will close the modal -->
+        <button class="btn">Close</button>
+      </form>
+    </div>
+  </div>
+</dialog>
 
   
 
@@ -135,6 +180,38 @@ try {
         </div>
 
     </div>
+
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js" type="text/javascript"></script>
+
+<script>
+$(document).on('submit', '.add-food-form', function(event) {
+  event.preventDefault();
+
+  var $form   = $(this);
+  var payload = $form.serialize();
+
+  $.ajax({
+    type: 'POST',
+    url: 'Models/ajax_createFoodLog.php',
+    data: payload,
+    dataType: 'json'
+  })
+  .done(function(response) {
+    if (response.success) {
+      // you could update the UI inline instead of alert…
+      alert('Logged! New ID: ' + response.log_id);
+    } else {
+      alert('Error: ' + response.error);
+    }
+  })
+  .fail(function(jqXHR, status, error) {
+    alert('Request failed: ' + error);
+  });
+});
+</script>
+
+
+
 
 
     </div>
